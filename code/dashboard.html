@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base target="_top">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --card-bg: #111111;
+            --text-main: #e0e0e0;
+            --text-muted: #9e9e9e;
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-green: #00ff9d;
+            --danger: #ff2a6d;
+            --border-color: #333;
+        }
+
+        body {
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        .header {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+        }
+
+        .header p {
+            margin: 4px 0 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-value {
+            font-size: 36px;
+            font-weight: 400;
+            color: white;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+        }
+
+        .card-subtext {
+            font-size: 12px;
+            color: var(--neon-green);
+            margin-top: 4px;
+        }
+
+        .card-subtext.warning {
+            color: var(--danger);
+        }
+
+        /* Charts Section */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            min-height: 300px;
+        }
+
+        .chart-card .card-title {
+            color: var(--neon-pink);
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Simple Bar Chart CSS */
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bar-label {
+            width: 100px;
+            font-size: 12px;
+            text-align: right;
+            color: var(--text-muted);
+        }
+
+        .bar-track {
+            flex-grow: 1;
+            background: #222;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--neon-cyan);
+            border-radius: 6px;
+            width: 0%;
+            /* Animated via JS */
+            transition: width 1s ease-out;
+            box-shadow: 0 0 8px var(--neon-cyan);
+        }
+
+        .bar-value {
+            width: 50px;
+            font-size: 12px;
+            color: white;
+        }
+
+        /* Loading State */
+        #loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 18px;
+            color: var(--text-muted);
+        }
+
+        #loading small {
+            color: #666;
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        .text-muted {
+            color: var(--text-muted);
+        }
+
+        .text-danger {
+            color: var(--danger);
+        }
+
+        #content {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loading">
+        Calculating stats from your Inventory...<br>
+        <small>This runs entirely in your sheet.</small>
+    </div>
+
+    <div id="content">
+        <div class="header">
+            <h1>Drive Overview</h1>
+            <p>Snapshot of your current inventory scan.</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Total Files -->
+            <div class="card">
+                <div class="card-title">Total Items</div>
+                <div class="card-value" id="totalFiles">-</div>
+                <div class="card-subtext">Scanned items</div>
+            </div>
+
+            <!-- Storage Used -->
+            <div class="card">
+                <div class="card-title">Total Size</div>
+                <div class="card-value" id="totalSize">-</div>
+                <div class="card-subtext">Estimated usage</div>
+            </div>
+
+            <!-- Duplicates -->
+            <div class="card">
+                <div class="card-title">Duplicates</div>
+                <div class="card-value" id="duplicateCount">-</div>
+                <div class="card-subtext warning" id="duplicateSize">- wasted</div>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <!-- File Type Distribution -->
+            <div class="chart-card">
+                <div class="card-title">Top File Types</div>
+                <div class="bar-chart" id="typeChart">
+                    <!-- Bars injected by JS -->
+                </div>
+            </div>
+
+            <!-- Storage Distribution (Placeholder for now, maybe by folder later) -->
+            <div class="chart-card">
+                <div class="card-title">Storage Breakdown</div>
+                <div class="bar-chart" id="storageChart">
+                    <!-- Bars injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // On Load
+        window.onload = function () {
+            google.script.run
+                .withSuccessHandler(renderDashboard)
+                .withFailureHandler(showError)
+                .getDashboardData();
+        };
+
+        function renderDashboard(data) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+
+            // Cards
+            document.getElementById('totalFiles').innerText = data.totalFiles.toLocaleString();
+            document.getElementById('totalSize').innerText = formatBytes(data.totalBytes);
+
+            document.getElementById('duplicateCount').innerText = data.duplicateCount.toLocaleString();
+            document.getElementById('duplicateSize').innerText = formatBytes(data.duplicateBytes) + ' potential waste';
+
+            // Charts
+            renderBarChart('typeChart', data.topTypes);
+            renderBarChart('storageChart', data.topStorageTypes); // Re-using types for storage breakdown for now
+        }
+
+        function renderBarChart(elementId, items) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            if (!items || items.length === 0) {
+                container.innerHTML = '<p class="text-center mt-20 text-muted">No data available</p>';
+                return;
+            }
+
+            // Find max value for scaling
+            const max = Math.max(...items.map(i => i.value));
+
+            items.forEach(item => {
+                const percent = (item.value / max) * 100;
+
+                const row = document.createElement('div');
+                row.className = 'bar-row';
+
+                row.innerHTML = `
+          <div class="bar-label">${item.label}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: ${percent}%; background-color: ${getColor(item.label)}"></div>
+          </div>
+          <div class="bar-value">${item.displayValue || item.value}</div>
+        `;
+
+                container.appendChild(row);
+            });
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (!+bytes) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+        }
+
+        function getColor(label) {
+            // Cyberpunk Neon Palette
+            const colors = {
+                'Folder': '#00f3ff',      // Neon Cyan
+                'PDF': '#ff00ff',         // Neon Pink
+                'Image': '#00ff9d',       // Neon Green
+                'Video': '#ff2a6d',       // Neon Red/Pink
+                'Google Doc': '#00f3ff',  // Cyan
+                'Google Sheet': '#00ff9d',// Green
+                'Google Slide': '#ff9f1c',// Neon Orange
+                'Other': '#9e9e9e'        // Grey
+            };
+            return colors[label] || '#00f3ff';
+        }
+
+        function showError(err) {
+            document.getElementById('loading').innerHTML = `<span class="text-danger">Error: ${err.message}</span>`;
+        }
+    </script>
+</body>
+
+</html>

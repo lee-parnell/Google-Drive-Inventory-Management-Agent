@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <style>
+    :root {
+      --bg-color: #050505;
+      --card-bg: #111111;
+      --text-main: #e0e0e0;
+      --text-muted: #9e9e9e;
+      --neon-cyan: #00f3ff;
+      --neon-pink: #ff00ff;
+      --neon-green: #00ff9d;
+      --danger: #ff2a6d;
+      --border-color: #333;
+    }
+
+    body {
+      padding: 15px;
+      font-family: 'Google Sans', 'Roboto', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+    }
+
+    .branding {
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    .branding h3 {
+      margin: 0;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-shadow: 0 0 5px rgba(0, 243, 255, 0.3);
+    }
+
+    .section {
+      margin-bottom: 25px;
+      background: var(--card-bg);
+      padding: 15px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .help-text {
+      color: var(--text-muted);
+      font-size: 0.85em;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    input[type="text"] {
+      background: #222;
+      border: 1px solid #444;
+      color: white;
+      padding: 8px;
+      border-radius: 4px;
+      width: 100%;
+      /* Ensure full width */
+      box-sizing: border-box;
+      /* Fix padding issues */
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 5px rgba(0, 243, 255, 0.3);
+    }
+
+    /* Buttons */
+    button.action {
+      width: 100%;
+      margin-bottom: 10px;
+      cursor: pointer;
+      padding: 12px 16px;
+      /* Increased padding */
+      border: none;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      background: #333;
+      color: white;
+
+      /* Centering */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    button.action:hover {
+      filter: brightness(1.2);
+      transform: translateY(-1px);
+    }
+
+    /* Primary Action (Green/Cyan) */
+    button.share,
+    button#btnFull {
+      background: linear-gradient(45deg, #00b09b, #96c93d);
+      color: #000;
+      box-shadow: 0 2px 10px rgba(0, 255, 157, 0.2);
+    }
+
+    /* Dashboard Button */
+    button#btnDashboard {
+      background: transparent;
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      margin-top: 5px;
+    }
+
+    button#btnDashboard:hover {
+      background: rgba(0, 243, 255, 0.1);
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+    }
+
+    /* Danger/Delete Actions */
+    button.error,
+    .btn-confirm-delete {
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      color: white;
+    }
+
+    /* Standard Blue Actions */
+    button#btnUrl,
+    button#btnRename,
+    button#btnMove,
+    button#btnCopy,
+    button#btnBulkMove {
+      background: linear-gradient(45deg, #2193b0, #6dd5ed);
+      color: #000;
+    }
+
+    /* Status Box */
+    #status {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      display: none;
+      background: #222;
+      border: 1px solid #444;
+    }
+
+    .success {
+      color: var(--neon-green);
+      border-color: var(--neon-green) !important;
+    }
+
+    .error {
+      color: var(--danger);
+      border-color: var(--danger) !important;
+    }
+
+    .working {
+      color: var(--neon-cyan);
+      border-color: var(--neon-cyan) !important;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(2px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-box {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 8px;
+      width: 85%;
+      border: 1px solid var(--neon-pink);
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.2);
+      text-align: center;
+      color: white;
+    }
+
+    .modal-box h3 {
+      margin-top: 0;
+      color: var(--neon-pink);
+    }
+
+    .modal-buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn-cancel {
+      background: #333;
+      color: #aaa;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="branding">
+    <h3>Drive Inventory</h3>
+  </div>
+
+  <!-- Full Inventory -->
+  <div class="section">
+    <span class="help-text">Scan everything visible to you.</span>
+    <button type="button" class="action share" id="btnFull" onclick="runFull()">Inventory Everything</button>
+    <button type="button" class="action" id="btnDashboard" onclick="openDashboard()">📊 View
+      Dashboard</button>
+  </div>
+
+  <!-- Targeted Inventory -->
+  <div class="section">
+    <div class="form-group">
+      <span class="help-text">Or paste a Folder/Drive URL:</span>
+      <input type="text" id="urlInput" placeholder="https://drive.google.com/...">
+      <button type="button" class="action" id="btnUrl" onclick="runUrl()">Inventory Specific Target</button>
+    </div>
+  </div>
+
+  <!-- Bulk Actions -->
+  <div class="section">
+    <div class="branding">
+      <h3>Bulk Actions</h3>
+    </div>
+    <div class="form-group">
+      <span class="help-text">Actions on Checked Rows:</span>
+      <button type="button" class="action error" id="btnBulkDelete" onclick="runBulkDelete()">Delete Selected</button>
+
+      <div style="margin-top: 10px;">
+        <input type="text" id="bulkMoveTargetId" placeholder="Target Folder ID">
+        <button type="button" class="action" id="btnBulkMove" onclick="runBulkMove()">Move Selected</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reorganization Tools -->
+  <div class="section">
+    <div class="branding">
+      <h3>Single File Tools</h3>
+    </div>
+    <div class="form-group">
+      <span class="help-text">Rename File (by ID):</span>
+      <input type="text" id="renameId" placeholder="File ID">
+      <input type="text" id="renameName" placeholder="New Name">
+      <button type="button" class="action" id="btnRename" onclick="runRename()">Rename File</button>
+    </div>
+    <div class="form-group">
+      <span class="help-text">Move File (by ID):</span>
+      <input type="text" id="moveId" placeholder="File ID">
+      <input type="text" id="moveTargetId" placeholder="Target Folder ID">
+      <button type="button" class="action" id="btnMove" onclick="runMove()">Move File</button>
+    </div>
+    <div class="form-group">
+      <span class="help-text">Copy File (by ID):</span>
+      <input type="text" id="copyId" placeholder="File ID">
+      <input type="text" id="copyTargetId" placeholder="Target Folder ID">
+      <input type="text" id="copyName" placeholder="New Name (Optional)">
+      <button type="button" class="action" id="btnCopy" onclick="runCopy()">Copy File</button>
+    </div>
+    <div class="form-group">
+      <span class="help-text">Delete File (by ID):</span>
+      <input type="text" id="deleteId" placeholder="File ID">
+      <button type="button" class="action error" id="btnDelete" onclick="runDelete()">Delete File</button>
+    </div>
+  </div>
+
+  <div id="status"></div>
+
+  <!-- Custom Modal -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal-box">
+      <h3>Confirm Deletion</h3>
+      <p id="deleteMsg">Are you sure you want to move this file to the trash?</p>
+      <div class="modal-buttons">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-confirm-delete" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let fileToDeleteId = null;
+    let isBulkDelete = false;
+
+    function openDashboard() {
+      google.script.run.showDashboard();
+    }
+
+    function runFull() {
+      disableUi(true, 'Scanning entire Drive... this may take a moment.');
+      google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onFailure)
+        .runFullInventoryFromSidebar();
+    }
+
+    function runUrl() {
+      const input = document.getElementById('urlInput').value;
+      if (!input) {
+        showStatus('Please enter a URL first.', 'error');
+        return;
+      }
+      disableUi(true, 'Scanning target...');
+      google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onFailure)
+        .runUrlInventoryFromSidebar(input);
+    }
+
+    function runRename() {
+      const id = document.getElementById('renameId').value;
+      const name = document.getElementById('renameName').value;
+      if (!id || !name) {
+        showStatus('Please enter both ID and New Name.', 'error');
+        return;
+      }
+      disableUi(true, 'Renaming...');
+      google.script.run
+        .withSuccessHandler((result) => {
+          disableUi(false);
+          if (result.success) {
+            showStatus('✅ ' + result.message, 'success');
+            document.getElementById('renameId').value = '';
+            document.getElementById('renameName').value = '';
+          } else {
+            showStatus('❌ Error: ' + result.error, 'error');
+          }
+        })
+        .withFailureHandler(onFailure)
+        .renameFile(id, name);
+    }
+
+    function runMove() {
+      const id = document.getElementById('moveId').value;
+      const targetId = document.getElementById('moveTargetId').value;
+      if (!id || !targetId) {
+        showStatus('Please enter both File ID and Target Folder ID.', 'error');
+        return;
+      }
+      disableUi(true, 'Moving...');
+      google.script.run
+        .withSuccessHandler((result) => {
+          disableUi(false);
+          if (result.success) {
+            showStatus('✅ ' + result.message, 'success');
+            document.getElementById('moveId').value = '';
+            document.getElementById('moveTargetId').value = '';
+          } else {
+            showStatus('❌ Error: ' + result.error, 'error');
+          }
+        })
+        .withFailureHandler(onFailure)
+        .moveFile(id, targetId);
+    }
+
+    function runCopy() {
+      const id = document.getElementById('copyId').value;
+      const targetId = document.getElementById('copyTargetId').value;
+      const name = document.getElementById('copyName').value;
+      if (!id || !targetId) {
+        showStatus('Please enter both File ID and Target Folder ID.', 'error');
+        return;
+      }
+      disableUi(true, 'Copying...');
+      google.script.run
+        .withSuccessHandler((result) => {
+          disableUi(false);
+          if (result.success) {
+            showStatus('✅ ' + result.message, 'success');
+            document.getElementById('copyId').value = '';
+            document.getElementById('copyTargetId').value = '';
+            document.getElementById('copyName').value = '';
+          } else {
+            showStatus('❌ Error: ' + result.error, 'error');
+          }
+        })
+        .withFailureHandler(onFailure)
+        .copyFile(id, targetId, name);
+    }
+
+    // --- Bulk Operations ---
+
+    function runBulkMove() {
+      const targetId = document.getElementById('bulkMoveTargetId').value;
+      if (!targetId) {
+        showStatus('Please enter a Target Folder ID for bulk move.', 'error');
+        return;
+      }
+      disableUi(true, 'Moving selected files...');
+      google.script.run
+        .withSuccessHandler((result) => {
+          disableUi(false);
+          if (result.success) {
+            showStatus('✅ ' + result.message, 'success');
+            document.getElementById('bulkMoveTargetId').value = '';
+          } else {
+            showStatus('❌ Error: ' + result.error, 'error');
+          }
+        })
+        .withFailureHandler(onFailure)
+        .processBulkMove(targetId);
+    }
+
+    function runBulkDelete() {
+      isBulkDelete = true;
+      document.getElementById('deleteMsg').innerText = 'Are you sure you want to delete all SELECTED files?';
+      document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    // --- Delete Logic with Custom Modal ---
+
+    function runDelete() {
+      const id = document.getElementById('deleteId').value;
+      if (!id) {
+        showStatus('Please enter a File ID.', 'error');
+        return;
+      }
+      isBulkDelete = false;
+      fileToDeleteId = id;
+      document.getElementById('deleteMsg').innerText = 'Are you sure you want to move this file to the trash?';
+      document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('deleteModal').style.display = 'none';
+      fileToDeleteId = null;
+      isBulkDelete = false;
+    }
+
+    function confirmDelete() {
+      const isBulk = isBulkDelete; // Capture state
+      const idToDelete = fileToDeleteId; // Capture state
+
+      closeModal(); // Now safe to reset
+      disableUi(true, 'Deleting...');
+
+      if (isBulk) {
+        google.script.run
+          .withSuccessHandler(onSuccess)
+          .withFailureHandler(onFailure)
+          .processBulkDelete();
+      } else {
+        if (!idToDelete) {
+          disableUi(false); // Re-enable if nothing to do
+          return;
+        }
+        google.script.run
+          .withSuccessHandler((result) => {
+            disableUi(false);
+            if (result.success) {
+              showStatus('✅ ' + result.message, 'success');
+              document.getElementById('deleteId').value = '';
+            } else {
+              showStatus('❌ Error: ' + result.error, 'error');
+            }
+          })
+          .withFailureHandler(onFailure)
+          .deleteFile(idToDelete);
+      }
+    }
+
+    // --------------------------------------
+
+    function onSuccess(result) {
+      disableUi(false);
+      if (result.success) {
+        showStatus('✅ Success! ' + (result.message || 'Operation complete.'), 'success');
+      } else {
+        showStatus('❌ Error: ' + result.error, 'error');
+      }
+    }
+
+    function onFailure(error) {
+      disableUi(false);
+      showStatus('❌ System Error: ' + error.message, 'error');
+    }
+
+    function disableUi(isLoading, msg) {
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(b => b.disabled = isLoading);
+      if (isLoading) showStatus('⏳ ' + msg, 'working');
+    }
+
+    function showStatus(msg, className) {
+      const el = document.getElementById('status');
+      el.innerText = msg;
+      el.className = className;
+      el.style.display = 'block';
+    }
+  </script>
+</body>
+
+</html>
